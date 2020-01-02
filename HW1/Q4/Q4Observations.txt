@@ -1,0 +1,6 @@
+c.i.a. 47 blank rows
+c.i.b. 5 new columns created, removed 2 columns with blank values, 3 rows remains.
+c.ii. Used metaphone3, 566 clusters found.
+c.iii. if(isBlank(value),"Unbranded",value)
+c.iv. if(toNumber(value)>100,1,0)
+c.v. if(or(contains(value,"discount"),contains(value,"offer"),contains(value,"sale")),1,0) 

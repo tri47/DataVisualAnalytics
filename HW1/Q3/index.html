@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="utf-8">
+    <title>tnguyen497</title>
+    <script type="text/javascript" src="d3/d3.v3.min.js"></script>
+
+<style> 
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: black;
+      
+    }
+
+    .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+
+    circle {
+        fill: none;
+    }
+
+</style>
+</head>
+
+<body>
+ 
+
+<script type="text/javascript">
+
+    var data_set = [];
+    for (var i = 0; i<100; i++) {
+        var x = Math.ceil(Math.random()*(240)) + 10;
+        var y = Math.ceil(Math.random()*(240)) + 10;
+        data_set.push({x:x,y:y});
+    }
+
+    //data_set.push({x:0,y:240});
+    //data_set.push({x:240,y:0});
+   // data_set.push({x:10,y:10});
+
+    var width = 550,
+    height = 550,
+    padding = 60;
+
+var x_scale = d3.scale.linear()
+    .domain([0, d3.max(data_set.map(function(d,i) { return d.x; }))])
+    .range([padding, width - padding]);
+
+var y_scale = d3.scale.linear()
+    .domain([0, d3.max(data_set.map( function(d,i) { return d.y; }))])
+    .range([height - padding, padding]);
+
+var r_scale = d3.scale.linear()
+    .domain([0, d3.max(data_set, function(d) { 
+        return Math.sqrt(d.x*d.x + d.y*d.y ); 
+    })])
+    .range([1, 5]);
+
+var svg = d3.select("body")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var mean_scaled_x = d3.mean(data_set, d=> {
+    return x_scale(d.x);
+});
+
+var mean_x = d3.mean(data_set, d=> {
+    return (d.x);
+});
+
+console.log("mean scaled:" + mean_scaled_x);
+console.log("mean x: " + mean_x);
+
+svg.selectAll("circle")
+   .data(data_set)
+   .enter()
+   .append("circle")
+   .attr("cx", function(d,i) {
+        return x_scale(d.x) ;
+   })
+   .attr("cy", function(d,i) {
+        return y_scale(d.y);
+   })
+   .attr("r", function(d,i) {
+        return r_scale(Math.sqrt(d.x*d.x + d.y*d.y));
+    });
+
+    svg.selectAll("circle")
+    .style("stroke", function() {
+        //console.log(nodes);
+        var current_cx = d3.select(this).attr("cx");
+        return current_cx > mean_scaled_x ? "blue": "green"; 
+    });
+
+// get smallest Y
+//var sorted_data = data_set.sort( (a,b) => {
+//    return a.y > b.y;
+//});
+
+var small_y_data = [];
+var min_y = data_set[0]
+for (var i = 1; i<data_set.length; i++) {
+    if (min_y.y > data_set[i].y) {
+        min_y = data_set[i]
+    }
+}
+
+small_y_data.push(min_y);
+
+console.log(small_y_data);
+
+svg.selectAll("text")
+   .data(small_y_data)
+   .enter()
+   .append("text")
+   .attr("x", function(d,i) {
+        return x_scale(d.x) ;
+   })
+   .attr("y", function(d,i) {
+        return y_scale(d.y);
+   })
+   .text(function(d,i) {
+        return "Y MIN =" + d.y;
+   })
+   .attr("font-size", "13px");
+
+var xAxis = d3.svg.axis()
+    .scale(x_scale)
+    .orient("bottom")
+  ;
+
+var yAxis = d3.svg.axis()
+    .scale(y_scale)
+    .orient("left")
+;
+
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate("+ 0 + "," + (height - padding) + ")")
+    .call(xAxis);
+
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(" + padding + ",0)")
+    .call(yAxis);
+    
+//add title
+svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", padding/2)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "15px") 
+        .text("tnguyen497");
+
+</script>
+</body>
+
+</html>  

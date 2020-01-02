@@ -1,0 +1,24 @@
+1. Ease to develop:
+    Excel: Easy to develop simple charts than D3, and is comparable with Tableau. For more complex charts, requires macro programming and becomes as complex as D3.
+    Tableau: Simple to develop, there is a moderate learning curve for advanced features.
+    D3: Steepest learning curve. Developer needs to learn css, html, javascript and d3.
+
+2. Ease to maintain the visualization for developers 
+    Excel: Somewhat not depend on platform, any machine with excel can run the file. Can be fidly to modify graphs compared to Tableau when required.
+    Tableau: Simplest to modify due to drag and drop nature.
+    D3: Can be easier to maintain than Excel if the changes were anticipated and the code allows for configurations.
+
+3. Usability for end users
+    Excel: Very limited interaction, most suitable for simple graphs.
+    Tableau: User friendly, provide interactive features such as filters and stories.
+    D3: Can be made very interactive. Most versatile in terms of interactive possibilities.
+
+4. Scalability to “large” datasets
+    Excel: Has limit on data size.
+    Tableau: Scalale for large dataset.
+    D3: Scalable for large dataset. Performance depends on user’s machine.
+
+5. System requirements to run the visualization 
+    Excel: Simplest to access. Excel is standard for most work machines.
+    Tableau: Require licences which can cost a few thousands each.
+    D3: Does not require extra licence, works on browsers.

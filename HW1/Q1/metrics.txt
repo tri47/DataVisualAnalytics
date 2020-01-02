@@ -1,0 +1,3 @@
+Average node degree: 1.647. The everage number of movies a particular movie (node) is related to.
+Diameter of the graph: 9. Two unrelated movies can still be linked by an intermediate movie. This figure shows how far apart two movies can be linked by other movies.
+Average path length: 2.532. A path (comprising of a series of edges) is made by movies that connect in a chain. Average path length is relative to the number of movies that form a chain.

@@ -1,0 +1,13 @@
+-- trigrams = LOAD ‘s3://cse6242-2019spring-trigrams-small/*’ AS (trigram:chararray, year:int, occurrences:float, books:float);
+
+-- trigrams = LOAD 's3://cse6242oan-2019spring-tnguyen497/data.txt' AS (trigram:chararray, year:int, occurrences:float, books:float);
+
+trigrams = LOAD '$INPUT' AS (trigram:chararray, year:int, occurrences:float, books:float);
+tri_filter = filter trigrams by occurrences >= 400 and books >=15;
+tri_group = group tri_filter by trigram;
+tri_avg = FOREACH tri_group GENERATE  FLATTEN(group) AS trigram, SUM(tri_filter.occurrences) AS sum_occ, SUM(tri_filter.books) AS sum_books;
+tri_div = FOREACH tri_avg GENERATE trigram, sum_occ/sum_books as sum_avg;
+tri_order = order tri_div by sum_avg desc, trigram asc;
+result = limit tri_order 20;
+DUMP result;
+STORE result INTO '$OUTPUT';

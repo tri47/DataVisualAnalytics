@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="utf-8">
+    <title>tnguyen497</title>
+    <script  type="text/javascript" src="../lib/d3.v5.min.js"></script>
+
+<style> 
+
+
+    .pagebreak { page-break-before: always; } 
+
+    div {
+        float:none;
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
+
+    .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+
+    circle {
+        fill: none;
+        stroke: red;
+    }
+
+
+    #allgraph {
+        
+        float: none;
+     
+    }
+
+    path {
+        fill: none;
+    }
+
+</style>
+</head>
+
+
+<body>
+<div id="allgraph">
+    <div id="grapha1"></div>
+
+    <div class="pagebreak"> </div>
+
+    <div id="grapha2"></div>
+
+    <div class="pagebreak" >  </div>
+
+    <div id="graphb"></div>
+
+    <div class="pagebreak"> </div>
+
+    <div id="graphc1"></div>
+
+    <div class="pagebreak"> </div>
+
+    <div id="graphc2"></div>
+    
+    <div class="pagebreak"> </div>
+</div>
+
+<script type="text/javascript">
+
+d3.csv("movies.csv").then( function(data_set){
+    console.log(data_set);
+    
+    data_set.forEach(function(d) {
+        d.Rating = +d.Rating;
+        d.WinsNoms = +d.WinsNoms;
+        d.IsGoodRating = +d.IsGoodRating;
+    });
+
+ //   example_1 = {Rating:2, WinsNoms:60,IsGoodRating:1};
+ //   data_set.push(example_1);
+
+    var width = 600, height = 600, padding = 100;
+
+    var x_scale = d3.scaleLinear()
+        .domain([d3.min(data_set.map(function(d,i) { return d.Rating; })) * 0.9, 
+        d3.max(data_set.map(function(d,i) { return d.Rating; }))])
+        .range([padding, width - padding]);
+
+    var y_scale = d3.scaleLinear()
+        .domain([0, d3.max(data_set.map( function(d,i) { return d.WinsNoms; }))])
+        .range([height - padding, padding]);
+
+    var svg = d3.select("#grapha1")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    var cross_symbol = d3.symbol().type(d3.symbolCross);
+    var circle_symbol = d3.symbol().type(d3.symbolCircle);
+
+    svg.selectAll("path")
+    .data(data_set)
+    .enter()
+    .append("path")
+    .attr('d', function(d) {
+            return d.IsGoodRating == 1? cross_symbol.size(20)() : circle_symbol.size(20)();
+    })
+    .style("stroke", function(d) {
+            return d.IsGoodRating == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(x_scale(d.Rating))+"," + (y_scale(d.WinsNoms)) + ")"; 
+    })
+    ; 
+
+
+    var xAxis = d3.axisBottom(x_scale);
+    var yAxis = d3.axisLeft(y_scale);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate("+ 0 + "," + (height - padding) + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + padding + ",0)")
+        .call(yAxis);
+        
+    //add title
+    svg.append("text")
+            .attr("x", (width / 2))             
+            .attr("y", padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Wins+Nominations vs. Rating");
+
+    // Add x label
+    svg.append("text")  
+            .attr("x", (width / 2))             
+            .attr("y", height - padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Rating");           
+
+    // Add y label  
+    svg.append("text")  
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .attr("transform", "translate(" + (padding+15) + "," + height/2 +") rotate(-90)")
+            .text("Wins+Noms"); 
+
+    // Legend example refered at https://www.thetextmine.net/d3StreamGraph.php
+    var legend = svg.append("g")
+        .attr("font-family", "sans-serif")
+            .attr("font-size", 12)
+            .attr("text-anchor", "start")
+            .selectAll("g")
+            .data([0,1])
+            .enter().append("g")
+            .attr("transform", function(d,i) {
+                return "translate(0," + i * 12 + ")";
+            });
+
+
+    legend.append("path")
+    .attr('d', function(d) {
+            return d == 1? cross_symbol.size(30)() : circle_symbol.size(30)();
+    })
+    .style("stroke", function(d) {
+            return d == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(width - padding + 18)+"," + (padding) + ")"; 
+    })
+    ; 
+
+ 
+    //append legend texts
+    legend.append("text")
+    .attr("x", width - padding + 25)
+    .attr("y", padding)
+    .attr("dy", "0.32em")
+    .text(function(d) {
+        return d==0? "Bad rating": "Good rating";
+    });
+}); // end load data  for graph a1
+
+//// ********************
+//// ********************
+/// PLOT BUDGET VS RATING
+d3.csv("movies.csv").then( function(data_set){
+    console.log(data_set);
+    
+    data_set.forEach(function(d) {
+        d.Rating = +d.Rating;
+        d.Budget = +d.Budget;
+        d.IsGoodRating = +d.IsGoodRating;
+    });
+
+    var width = 600, height = 600, padding = 100;
+
+    var x_scale = d3.scaleLinear()
+        .domain([d3.min(data_set.map(function(d,i) { return d.Rating; })) * 0.9, 
+        d3.max(data_set.map(function(d,i) { return d.Rating; }))])
+        .range([padding, width - padding]);
+
+
+    var y_scale = d3.scaleLinear()
+        .domain([0, d3.max(data_set.map( function(d,i) { return d.Budget; }))])
+        .range([height - padding, padding]);
+
+    var svg = d3.select("#grapha2")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+
+    var cross_symbol = d3.symbol().type(d3.symbolCross);
+    var circle_symbol = d3.symbol().type(d3.symbolCircle);
+
+    svg.selectAll("path")
+    .data(data_set)
+    .enter()
+    .append("path")
+    .attr('d', function(d) {
+            return d.IsGoodRating == 1? cross_symbol.size(20)() : circle_symbol.size(20)();
+    })
+    .style("stroke", function(d) {
+            return d.IsGoodRating == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(x_scale(d.Rating))+"," + (y_scale(d.Budget)) + ")"; 
+    })
+    ; 
+
+    var xAxis = d3.axisBottom(x_scale);
+    var yAxis = d3.axisLeft(y_scale);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate("+ 0 + "," + (height - padding) + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + padding + ",0)")
+        .call(yAxis);
+        
+    //add title
+    svg.append("text")
+            .attr("x", (width / 2))             
+            .attr("y", padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Budget vs. Rating");
+
+    // Add x label
+    svg.append("text")  
+            .attr("x", (width / 2))             
+            .attr("y", height - padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Rating");           
+
+    // Add y label  
+    svg.append("text")  
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .attr("transform", "translate(" + (padding+15)  + "," + height/2 +") rotate(-90)")
+            .text("Budget"); 
+
+    // Legend example refered at https://www.thetextmine.net/d3StreamGraph.php
+    var legend = svg.append("g")
+        .attr("font-family", "sans-serif")
+            .attr("font-size", 12)
+            .attr("text-anchor", "start")
+            .selectAll("g")
+            .data([0,1])
+            .enter().append("g")
+            .attr("transform", function(d,i) {
+                return "translate(0," + i * 12 + ")";
+            });
+
+    legend.append("path")
+    .attr('d', function(d) {
+            return d == 1? cross_symbol.size(30)() : circle_symbol.size(30)();
+    })
+    .style("stroke", function(d) {
+            return d == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(width - padding + 18)+"," + (padding) + ")"; 
+    })
+    ; 
+            
+    //append legend texts
+    legend.append("text")
+    .attr("x", width - padding + 25)
+    .attr("y", padding)
+    .attr("dy", "0.32em")
+    .text(function(d) {
+        return d==0? "Bad rating": "Good rating";
+    });
+}); // end load data  for graph a2
+
+
+
+//// ********************
+//// ********************
+/// PLOT  Votes vs. Rating sized by Wins+Nominations
+d3.csv("movies.csv").then( function(data_set){
+    console.log(data_set);
+    
+    data_set.forEach(function(d) {
+        d.Rating = +d.Rating;
+        d.Votes = +d.Votes;
+        d.IsGoodRating = +d.IsGoodRating;
+        d.WinsNoms = +d.WinsNoms;
+    });
+
+    var width = 600, height = 600, padding = 100;
+
+    var x_scale = d3.scaleLinear()
+        .domain([d3.min(data_set.map(function(d,i) { return d.Rating; })) * 0.9, 
+        d3.max(data_set.map(function(d,i) { return d.Rating; }))])
+        .range([padding, width - padding]);
+
+    var y_scale = d3.scaleLinear()
+        .domain([0, d3.max(data_set.map( function(d,i) { return d.Votes; }))])
+        .range([height - padding, padding]);
+
+    var z_scale = d3.scaleLinear()
+        .domain([0, d3.max(data_set.map( function(d,i) { return d.WinsNoms; }))])
+        .range([10,120]);
+
+    var svg = d3.select("#graphb")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+
+    var cross_symbol = d3.symbol().type(d3.symbolCross);
+    var circle_symbol = d3.symbol().type(d3.symbolCircle);
+
+    svg.selectAll("path")
+    .data(data_set)
+    .enter()
+    .append("path")
+    .attr('d', function(d) {
+            return d.IsGoodRating == 1? cross_symbol.size(z_scale(d.WinsNoms))() : circle_symbol.size(z_scale(d.WinsNoms))();
+    })
+    .style("stroke", function(d) {
+            return d.IsGoodRating == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(x_scale(d.Rating))+"," + (y_scale(d.Votes)) + ")"; 
+    })
+    ; 
+
+ 
+
+
+        var xAxis = d3.axisBottom(x_scale);
+        var yAxis = d3.axisLeft(y_scale);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate("+ 0 + "," + (height - padding) + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + padding + ",0)")
+        .call(yAxis);
+        
+    //add title
+    svg.append("text")
+            .attr("x", (width / 2))             
+            .attr("y", padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Votes vs. Rating sized by Wins+Nominations");
+
+    // Add x label
+    svg.append("text")  
+            .attr("x", (width / 2))             
+            .attr("y", height - padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Rating");           
+
+    // Add y label  
+    svg.append("text")  
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .attr("transform", "translate(" + (padding+15)  + "," + height/2 +") rotate(-90)")
+            .text("Votes"); 
+
+    // Legend example refered at https://www.thetextmine.net/d3StreamGraph.php
+    var legend = svg.append("g")
+        .attr("font-family", "sans-serif")
+            .attr("font-size", 12)
+            .attr("text-anchor", "start")
+            .selectAll("g")
+            .data([0,1])
+            .enter().append("g")
+            .attr("transform", function(d,i) {
+                return "translate(0," + i * 12 + ")";
+            });
+
+
+    legend.append("path")
+    .attr('d', function(d) {
+            return d == 1? cross_symbol.size(30)() : circle_symbol.size(30)();
+    })
+    .style("stroke", function(d) {
+            return d == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(width - padding + 18)+"," + (padding) + ")"; 
+    })
+    ; 
+            
+    //append legend texts
+    legend.append("text")
+    .attr("x", width - padding + 25)
+    .attr("y", padding)
+    .attr("dy", "0.32em")
+    .text(function(d) {
+        return d==0? "Bad rating": "Good rating";
+    });
+}); // end load data  for graph a2
+
+
+
+
+//// ********************
+//// ********************
+/// PLOT  Wins+Nominations (square-root-scaled) vs. Rating
+d3.csv("movies.csv").then( function(data_set){
+    console.log(data_set);
+    
+    data_set.forEach(function(d) {
+        d.Rating = +d.Rating;
+        d.WinsNoms = +d.WinsNoms;
+        d.IsGoodRating = +d.IsGoodRating;
+    });
+
+  //  example_1 = {Rating:2, WinsNoms:100,IsGoodRating:1};
+  //  data_set.push(example_1);
+
+    var width = 600, height = 600, padding = 100;
+
+    var x_scale = d3.scaleLinear()
+        .domain([d3.min(data_set.map(function(d,i) { return d.Rating; })) * 0.9, 
+        d3.max(data_set.map(function(d,i) { return d.Rating; }))])
+        .range([padding, width - padding]);
+
+    var y_scale = d3.scaleSqrt()
+        .domain([0, d3.max(data_set.map( function(d,i) { return d.WinsNoms; }))])
+        .range([height - padding, padding]);
+
+    var svg = d3.select("#graphc1")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    var cross_symbol = d3.symbol().type(d3.symbolCross);
+    var circle_symbol = d3.symbol().type(d3.symbolCircle);
+
+
+    svg.selectAll("path")
+    .data(data_set)
+    .enter()
+    .append("path")
+    .attr('d', function(d) {
+            return d.IsGoodRating == 1? cross_symbol.size(20)() : circle_symbol.size(20)();
+    })
+    .style("stroke", function(d) {
+            return d.IsGoodRating == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(x_scale(d.Rating))+"," + (y_scale(d.WinsNoms)) + ")"; 
+    })
+    ; 
+
+
+
+        var xAxis = d3.axisBottom(x_scale);
+        var yAxis = d3.axisLeft(y_scale);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate("+ 0 + "," + (height - padding) + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + padding + ",0)")
+        .call(yAxis);
+        
+    //add title
+    svg.append("text")
+            .attr("x", (width / 2))             
+            .attr("y", padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Wins+Nominations (square-root-scaled) vs. Rating");
+
+    // Add x label
+    svg.append("text")  
+            .attr("x", (width / 2))             
+            .attr("y", height - padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Rating");           
+
+    // Add y label  
+    svg.append("text")  
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .attr("transform", "translate(" + (padding+15) + "," + height*0.25 +") rotate(-90)")
+            .text("Wins+Noms"); 
+
+    // Legend example refered at https://www.thetextmine.net/d3StreamGraph.php
+    var legend = svg.append("g")
+        .attr("font-family", "sans-serif")
+            .attr("font-size", 12)
+            .attr("text-anchor", "start")
+            .selectAll("g")
+            .data([0,1])
+            .enter().append("g")
+            .attr("transform", function(d,i) {
+                return "translate(0," + i * 12 + ")";
+            });
+
+    legend.append("path")
+    .attr('d', function(d) {
+            return d == 1? cross_symbol.size(30)() : circle_symbol.size(30)();
+    })
+    .style("stroke", function(d) {
+            return d == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(width - padding + 18)+"," + (padding) + ")"; 
+    })
+    ; 
+            
+    //append legend texts
+    legend.append("text")
+    .attr("x", width - padding + 25)
+    .attr("y", padding)
+    .attr("dy", "0.32em")
+    .text(function(d) {
+        return d==0? "Bad rating": "Good rating";
+    });
+}); // end load data  for graph c1
+
+
+//// ********************
+//// ********************
+/// PLOT  Wins+Nominations (log-scaled) vs. Rating
+d3.csv("movies.csv").then( function(data_set){
+    console.log(data_set);
+    
+    data_set.forEach(function(d) {
+        d.Rating = +d.Rating;
+        d.WinsNoms = +d.WinsNoms;
+        d.IsGoodRating = +d.IsGoodRating;
+    });
+
+    //example_1 = {Rating:2, WinsNoms:100,IsGoodRating:1};
+   // data_set.push(example_1);
+
+    var width = 600, height = 600, padding = 100;
+
+    var x_scale = d3.scaleLinear()
+        .domain([d3.min(data_set.map(function(d,i) { return d.Rating; })) * 0.9, 
+        d3.max(data_set.map(function(d,i) { return d.Rating; }))])
+        .range([padding, width - padding]);
+
+    var y_scale = d3.scaleLog()
+        .domain([0.5, d3.max(data_set.map( function(d,i) { return d.WinsNoms; }))])
+        .range([height - padding, padding]);
+
+    var svg = d3.select("#graphc2")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+
+    var cross_symbol = d3.symbol().type(d3.symbolCross);
+    var circle_symbol = d3.symbol().type(d3.symbolCircle);
+
+
+    function remove_zero(value) {
+        return value == 0?  y_scale(0.5) : y_scale(value);
+    }
+
+    svg.selectAll("path")
+    .data(data_set)
+    .enter()
+    .append("path")
+    .attr('d', function(d) {
+            return d.IsGoodRating == 1? cross_symbol.size(20)() : circle_symbol.size(20)();
+    })
+    .style("stroke", function(d) {
+            return d.IsGoodRating == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(x_scale(d.Rating))+"," + (remove_zero(d.WinsNoms)
+        ) + ")"; 
+    })
+    ; 
+
+
+    var xAxis = d3.axisBottom(x_scale);
+    var yAxis = d3.axisLeft(y_scale);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate("+ 0 + "," + (height - padding) + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + padding + ",0)")
+        .call(yAxis);
+        
+    //add title
+    svg.append("text")
+            .attr("x", (width / 2))             
+            .attr("y", padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Wins+Nominations (log-scaled) vs. Rating");
+
+    // Add x label
+    svg.append("text")  
+            .attr("x", (width / 2))             
+            .attr("y", height - padding/2)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .text("Rating");           
+
+    // Add y label  
+    svg.append("text")  
+            .attr("text-anchor", "middle")  
+            .style("font-size", "14px") 
+            .attr("transform", "translate(" + (padding+15) + "," + (height*0.25) +") rotate(-90)")
+            .text("Wins+Noms"); 
+
+    // Legend example refered at https://www.thetextmine.net/d3StreamGraph.php
+    var legend = svg.append("g")
+        .attr("font-family", "sans-serif")
+            .attr("font-size", 12)
+            .attr("text-anchor", "start")
+            .selectAll("g")
+            .data([0,1])
+            .enter().append("g")
+            .attr("transform", function(d,i) {
+                return "translate(0," + i * 12 + ")";
+            });
+
+    legend.append("path")
+    .attr('d', function(d) {
+            return d == 1? cross_symbol.size(30)() : circle_symbol.size(30)();
+    })
+    .style("stroke", function(d) {
+            return d == 1? "blue" : "red";
+    })
+    .attr('transform',function(d){ 
+        return "translate("+(width - padding + 18)+"," + (padding) + ")"; 
+    })
+    ; 
+            
+    //append legend texts
+    legend.append("text")
+    .attr("x", width - padding + 25)
+    .attr("y", padding)
+    .attr("dy", "0.32em")
+    .text(function(d) {
+        return d==0? "Bad rating": "Good rating";
+    });
+}); // end load data  for graph c1
+
+</script>
+</body>
+
+</html>  

@@ -1,0 +1,2 @@
+ Q3.a.2: Wins+Noms vs Rating is better at separating the classes as it's much clearer that higher rating movies have much better chance of winning and getting nominated. Budget vs Rating has the classes mixed a lot more, budgets appears to have little effects on rating.
+ Q3.c: Square root and log scale may be used when the range of the values are large, and each values can be many times higher than nearest smaller value, i.e. the values when ordered from smallest to largest grow exponentially.

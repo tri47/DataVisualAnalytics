@@ -1,0 +1,2 @@
+The layout shows movies with more connections at the center, while less connnected nodes are shown at the perimeters.
+Node size and label are scaled to degree to show most connected nodes, making it easy to spot most relevant movies.
